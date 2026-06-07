@@ -31,10 +31,11 @@ export function registerRoutes(
 
     const event = parsed.data;
 
-    // Non-blocking ingestion: enqueue immediately, return 202
+    // Keep completed jobs in Redis so Bull Board can show history (last 1000)
     await queue.add("process-event", event, {
       jobId: event.event_id,
-      removeOnComplete: true,
+      removeOnComplete: { count: 1000 },
+      removeOnFail: { count: 500 },
     });
 
     return reply.status(202).send({

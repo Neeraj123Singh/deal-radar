@@ -25,7 +25,7 @@ open http://localhost:3000
 | Frontend   | http://localhost:3000                    |
 | Backend    | http://localhost:3001                    |
 | Bull Board | http://localhost:3001/admin/queues     |
-| Postgres   | localhost:5432                           |
+| Postgres   | localhost:15432 (only needed for local dev outside Docker) |
 | Redis      | localhost:6379                           |
 
 ## Local Development (without Docker)
@@ -62,6 +62,7 @@ cd generator && npm install && npm run dev
 - Filter by status (success/error/duplicate) and event type
 - Pause/Resume with clean `useEffect` teardown (no leaks)
 - Deal Health panel — click any event to inspect deal + AI insight
+- Pipeline At-Risk panel — surfaces `/api/insights/at-risk` with hygiene + risk deals
 - Capped to 500 most recent events for performance
 - Empty, loading, and error states
 
@@ -80,7 +81,7 @@ cd generator && npm install && npm run dev
 | Virtualized list (react-window) | 500-event cap achieves same goal with less complexity |
 | Vector DB / RAG for notes | Notes are short; keyword extraction in validation layer is sufficient for this slice |
 | Multi-user auth | Out of scope for take-home; single-rep dashboard |
-| Chat UI for natural language queries | Focused on highest-value path: click deal → get health score |
+| Chat UI for natural language queries | At-risk pipeline panel + click-to-score covers the highest-value paths |
 | Kubernetes / Terraform | Documented deployment path instead (see `docs/DEPLOYMENT.md`) |
 
 ## Architecture

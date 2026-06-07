@@ -6,7 +6,7 @@ services:
       POSTGRES_PASSWORD: dealradar
       POSTGRES_DB: dealradar
     ports:
-      - "5432:5432"
+      - "15432:5432" # non-default host port; avoids local Postgres on 5432/5433
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:

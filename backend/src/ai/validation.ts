@@ -102,12 +102,20 @@ export function validateDealForScoring(ctx: DealContext): ValidationResult {
 
   // MEDDICC fields extracted from notes (structured check)
   const allNoteText = ctx.notes.map((n) => n.note.toLowerCase()).join(" ");
+  const fieldAliases: Record<(typeof MEDDICC_REQUIRED)[number]["key"], string[]> = {
+    metrics: ["metrics"],
+    economic_buyer: ["economic buyer", "economic_buyer"],
+    decision_criteria: ["decision criteria", "decision_criteria"],
+    decision_process: ["decision process", "decision_process"],
+    identify_pain: ["identify pain", "identify_pain", "identified pain"],
+    champion: ["champion"],
+  };
   for (const field of MEDDICC_REQUIRED) {
+    const aliases = fieldAliases[field.key];
     const found =
-      allNoteText.includes(field.key.replace(/_/g, " ")) ||
-      allNoteText.includes(field.key) ||
+      aliases.some((alias) => allNoteText.includes(alias)) ||
       ctx.events.some((e) =>
-        JSON.stringify(e.payload ?? {}).toLowerCase().includes(field.key)
+        aliases.some((alias) => JSON.stringify(e.payload ?? {}).toLowerCase().includes(alias))
       );
     if (!found) {
       missing_fields.push(field.label);

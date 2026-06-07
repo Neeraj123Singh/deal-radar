@@ -89,6 +89,7 @@ function generateEvent(): Record<string, unknown> {
       "Economic buyer identified: CFO James Miller",
       "Metrics: $2M annual savings from automation",
       "Decision criteria: security compliance + ROI within 12 months",
+      "Decision process: legal review in week 3, board sign-off week 5",
       "Identified pain: manual reporting takes 40hrs/week",
       "Quick note from rep — need to follow up",
     ];
@@ -127,6 +128,15 @@ async function sendEvent(event: Record<string, unknown>, label = ""): Promise<vo
   }
 }
 
+const FULL_MEDDICC_NOTES = [
+  "Champion: Sarah (VP Engineering) is actively advocating internally",
+  "Economic buyer identified: CFO James Miller",
+  "Metrics: $2M annual savings from automation",
+  "Decision criteria: security compliance + ROI within 12 months",
+  "Decision process: legal review in week 3, board sign-off week 5",
+  "Identified pain: manual reporting takes 40hrs/week",
+];
+
 async function seedInitialDeals(): Promise<void> {
   console.log("[gen] Seeding initial deals…");
   for (const deal of SEED_DEALS) {
@@ -143,6 +153,49 @@ async function seedInitialDeals(): Promise<void> {
       payload: { account_name: `Account for ${deal.deal_id}` },
     }, "seed");
     await new Promise((r) => setTimeout(r, 200));
+
+    // Seed activity + full MEDDICC notes for "clean" demo deals (Loom walkthrough)
+    if (deal.dirty === "clean") {
+      for (const [i, note] of FULL_MEDDICC_NOTES.entries()) {
+        await sendEvent({
+          event_id: randomId(),
+          deal_id: deal.deal_id,
+          type: "note_added",
+          stage: deal.stage,
+          amount: deal.amount,
+          close_date: deal.close_date,
+          source: "salesforce",
+          is_source_of_truth: true,
+          occurred_at: new Date(Date.now() - 86400000 * (7 - i)).toISOString(),
+          payload: { note },
+        }, "seed-meddicc");
+        await new Promise((r) => setTimeout(r, 100));
+      }
+      await sendEvent({
+        event_id: randomId(),
+        deal_id: deal.deal_id,
+        type: "email_sent",
+        stage: deal.stage,
+        amount: deal.amount,
+        close_date: deal.close_date,
+        source: "salesforce",
+        is_source_of_truth: true,
+        occurred_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+        payload: { subject: "Re: Proposal follow-up", to: "buyer@acme.com" },
+      }, "seed-activity");
+      await sendEvent({
+        event_id: randomId(),
+        deal_id: deal.deal_id,
+        type: "meeting_booked",
+        stage: deal.stage,
+        amount: deal.amount,
+        close_date: deal.close_date,
+        source: "salesforce",
+        is_source_of_truth: true,
+        occurred_at: new Date(Date.now() - 86400000).toISOString(),
+        payload: { title: "Demo call", duration_minutes: 45 },
+      }, "seed-activity");
+    }
   }
 }
 

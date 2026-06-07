@@ -205,7 +205,7 @@ Memory is **per-deal**, not global. There is no cross-deal context (each deal is
 | Senior | Validation gate | ✅ `validateDealForScoring()` |
 | Expert | Hygiene enforcer | ✅ `hygiene_actions[]` in refusal response |
 | Expert+ | Hard guard | ✅ Code overrides LLM if validation failed |
-| Expert+ | Live loop | 🔶 API ready; auto re-score on new events not wired |
+| Expert+ | Live loop | ✅ At-risk panel refreshes as events arrive; auto re-score on hygiene fix not wired |
 
 ## API Endpoints
 

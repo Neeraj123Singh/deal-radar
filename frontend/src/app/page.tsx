@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import clsx from "clsx";
+import { AtRiskPanel } from "@/components/AtRiskPanel";
 import { EventRow } from "@/components/EventRow";
 import { DealHealthPanel } from "@/components/DealHealthPanel";
+import { useAtRiskDeals } from "@/hooks/useAtRiskDeals";
 import { useEventStream } from "@/hooks/useEventStream";
 import { useDealHealth } from "@/hooks/useDealHealth";
 import { fetchJson } from "@/lib/api";
@@ -14,6 +16,7 @@ export default function Dashboard() {
   const [typeFilter, setTypeFilter] = useState<string>("");
   const [paused, setPaused] = useState(false);
   const [stats, setStats] = useState<QueueStats | null>(null);
+  const [atRiskRefreshKey, setAtRiskRefreshKey] = useState(0);
 
   const { events, connected, error: streamError, loading } = useEventStream({
     statusFilter: statusFilter || undefined,
@@ -33,6 +36,13 @@ export default function Dashboard() {
     clearSelection,
   } = useDealHealth();
 
+  const {
+    deals: atRiskDeals,
+    loading: atRiskLoading,
+    error: atRiskError,
+    refresh: refreshAtRisk,
+  } = useAtRiskDeals(atRiskRefreshKey);
+
   useEffect(() => {
     const interval = setInterval(async () => {
       try {
@@ -44,6 +54,16 @@ export default function Dashboard() {
     }, 5000);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    if (events.length === 0) return;
+    const timer = setTimeout(() => setAtRiskRefreshKey((k) => k + 1), 3000);
+    return () => clearTimeout(timer);
+  }, [events.length]);
+
+  const handleSelectDeal = (dealId: string) => {
+    selectDeal(dealId);
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -140,7 +160,7 @@ export default function Dashboard() {
                 key={event.event_id}
                 event={event}
                 selected={selectedDealId === event.deal_id}
-                onSelect={selectDeal}
+                onSelect={handleSelectDeal}
               />
             ))}
           </div>
@@ -154,6 +174,14 @@ export default function Dashboard() {
 
         {/* Deal Health Panel */}
         <div className="w-96 shrink-0 flex flex-col bg-slate-900/50">
+          <AtRiskPanel
+            deals={atRiskDeals}
+            loading={atRiskLoading}
+            error={atRiskError}
+            selectedDealId={selectedDealId}
+            onSelectDeal={handleSelectDeal}
+            onRefresh={refreshAtRisk}
+          />
           <DealHealthPanel
             deal={detail?.deal ?? null}
             insight={insight}

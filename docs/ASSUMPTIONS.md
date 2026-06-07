@@ -164,14 +164,14 @@ Every assumption made during this take-home, with rationale. When something was 
 3. **MEDDICC keyword matching is naive** — production needs structured CRM fields
 4. **No rate limiting** on webhook — would need it in production
 5. **Lock TTL edge case** — very slow processing could cause ordering violations
-6. **Frontend doesn't call `/api/insights/at-risk`** — API exists but no UI for pipeline-wide risk view
+6. **Frontend doesn't auto re-score on new events** — hygiene actions shown; manual re-score or refresh at-risk panel
 7. **No persistent SSE reconnection backoff** — browser EventSource handles basic retry, but no custom logic
 
 ---
 
 ## What I'd Do With More Time
 
-1. **Pipeline risk dashboard** — wire `/api/insights/at-risk` to a summary widget
+1. **Pipeline risk dashboard** — at-risk panel wired; could add trend charts over time
 2. **Virtualized event list** — `react-window` for 10k+ events
 3. **Structured MEDDICC fields** — CRM custom field mapping instead of keyword search
 4. **Event replay** — reprocess from `processed_events` for debugging
